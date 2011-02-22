@@ -37,7 +37,7 @@ echo 0 > /proc/sys/kernel/printk
 # Process command line options
 for i in $(cat /proc/cmdline); do
 	case "${i}" in
-		root\=*)
+		real_root\=*)
 			root=$(get_opt $i)
 		;;
 		init\=*)
@@ -84,7 +84,12 @@ use softraid InitializeSoftwareRaid
 use lvm InitializeLVM
 use luks InitializeLUKS && use lvm InitializeLVM
 use rescueshell
+
 use tuxonice TuxOnIceResume
+if [ -z tuxonice ]; then
+use resume   SwsuspResume
+fi
+
 emount /newroot
 eumount /sys /proc /dev
 

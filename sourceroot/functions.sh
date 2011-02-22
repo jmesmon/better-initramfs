@@ -101,6 +101,20 @@ InitializeSoftwareRaid() {
 	mdadm --auto-detect
 }
 
+SwsuspResume() {
+	if [ ! -z $resume ]; then
+		if [ ! -f /sys/power/resume ]; then
+			ewarn "Your kernel does not support swsusp."
+		else
+			einfo "Setting partition on resume."
+			stat -L -c '%t:%T' $resume > /sys/power/resume
+		fi
+	else
+		ewarn "resume= varialbe is empty, skipping swsusp"
+	fi
+}
+
+
 TuxOnIceResume() {
 	if [ ! -z $resume ]; then
 		if [ ! -f /sys/power/tuxonice/do_resume ]; then
