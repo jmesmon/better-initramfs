@@ -25,6 +25,7 @@ dobin() {
 	addbin() {
 		if ! ldd $source >> /dev/null; then
 			einfo "Adding $source..."
+			mkdir -p `dirname $target`
 			cp $source $target
 			chmod 755 $target
 		else
