@@ -1,4 +1,6 @@
 initramfs.cpio.gz
+initramfs.cpio
+*~
 sourceroot/bin/*
 !*.keep
 sourceroot/lib/*
