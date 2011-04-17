@@ -31,10 +31,10 @@ get_opt() {
 
 resolve_device() {
 	# This function will check if variable at $1 contain LABEL or UUID and then, if LABEL/UUID is vaild.	
-	device=$(eval echo \$$1)
-	case $device in
+	device="$(eval echo \$$1)"
+	case "${device}" in
 		LABEL\=*|UUID\=*)
-			eval $1=$(findfs $device)
+			eval $1="$(findfs $device)"
 			if [ -z "$(eval echo \$$1)" ]; then
 				eerror "Wrong UUID or LABEL."
 				rescueshell
@@ -59,7 +59,7 @@ use() {
 
 dodir() {
 	for dir in "$@"; do
-		mkdir -p $dir
+		mkdir -p "$dir"
 	done
 }
 
@@ -69,14 +69,14 @@ InitializeLUKS() {
 		rescueshell
 	fi
 
-	if [ -z $enc_root ]; then
+	if [ -z "$enc_root" ]; then
 		eerror "You have enabled luks but your \$enc_root variable is empty."
 		rescueshell
 	fi
 	
 	einfo "Opening encrypted partition and mapping to /dev/mapper/enc_root."
 	resolve_device enc_root
-	if [ -z $enc_root ]; then
+	if [ -z "$enc_root" ]; then
         	eerror "\$enc_root variable is empty. Wrong UUID/LABEL?"
 	        rescueshell
 	fi
@@ -116,7 +116,7 @@ SwsuspResume() {
 
 
 TuxOnIceResume() {
-	if [ ! -z $resume ]; then
+	if [ -n "${resume}" ]; then
 		if [ ! -f /sys/power/tuxonice/do_resume ]; then
 			ewarn "Your kernel do not support TuxOnIce.";
 		else
@@ -141,16 +141,8 @@ emount() {
 			;;
 	
 			'/dev')
-				if grep -q 'devtmpfs' '/proc/filesystems'; then
-					einfo "Mounting /dev (devtmpfs)..."
-					run mount -t devtmpfs devtmpfs /dev
-					dev_is='devtmpfs'
-				else
-					einfo "Mounting /dev (mdev)..."
-					run touch /etc/mdev.conf
-					run echo /sbin/mdev > /proc/sys/kernel/hotplug
-					run mdev -s
-				fi
+				einfo "Mounting /dev (devtmpfs)..."
+				run mount -t devtmpfs devtmpfs /dev
 			;;
 
 			'/proc')
@@ -174,20 +166,19 @@ emount() {
 eumount() {
 	while [ $# -gt 0 ]; do
 		case $1 in
-			'/dev')
-				if [ "${dev_is}" = 'devtmpfs' ]; then
-					einfo "Unmounting /dev (devtmpfs)..."
-					run umount /dev
-				fi
-			;;
 			*)
 				einfo "Unmounting ${1}..."
-				run umount $1
+				run umount "$1"
 			;;
 		esac
 		shift
 	done
 }	
+
+moveDev() {
+	einfo "Moving /dev to /newroot/dev..."
+	run mount --move /dev /newroot/dev
+}
 
 rootdelay() {
 	if [ "${rootdelay}" -gt 0 2>/dev/null ]; then

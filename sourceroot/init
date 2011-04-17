@@ -91,7 +91,8 @@ use resume   SwsuspResume
 fi
 
 emount /newroot
-eumount /sys /proc /dev
+moveDev
+eumount /sys /proc
 
 #Switch to the new root and execute init
 if [[ -x "/newroot/${init:-/sbin/init}" ]] ; then
