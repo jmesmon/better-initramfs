@@ -46,10 +46,11 @@ doimage() {
 
 	einfo 'Building image...'
 
-	( cd $sourceroot && find . | cpio --quiet -H newc -o | gzip -9 > ../initramfs.cpio.gz)
+	( cd $sourceroot && find . | cpio --quiet -H newc -o > ../initramfs.cpio)
 
-	if [[ -f $sourceroot/../initramfs.cpio.gz ]]; then
-		einfo "initramfs.cpio.gz is ready."
+	if [[ -f $sourceroot/../initramfs.cpio ]]; then
+		gzip -c -9 $sourceroot/../initramfs.cpio > $sourceroot/../initramfs.cpio.gz
+		einfo "initramfs.cpio is ready."
 	else
 		die "There is no initramfs.cpio.gz, something goes wrong."
 	fi
