@@ -1,17 +1,23 @@
+# Experimental
+
 dir /dev 0755 0 0
 nod /dev/console 0600 0 0 c 5 1
 
 dir /root 0700 0 0
 dir /bin  0755 0 0
+dir /proc 0755 0 0
+dir /sys  0755 0 0
+
 slink /sbin /bin 0777 0 0
 
-file /functions.sh ${HOME}/dev/better-initramfs/sourceroot/functions.sh 0644 0 0
-file /init         ${HOME}/dev/better-initramfs/sourceroot/init 0755 0 0
+file /VERSION      /usr/src/better-initramfs/VERSION 0644 0 0
+file /functions.sh /usr/src/better-initramfs/sourceroot/functions.sh 0644 0 0
+file /init         /usr/src/better-initramfs/sourceroot/init 0755 0 0
 
-file /bin/bb       /usr/bin/bb 0755 0 0
-slink /bin/bushbox /bin/bb 0777 0 0
+file  /bin/bb      /bin/bb 0755 0 0
+slink /bin/busybox /bin/bb 0777 0 0
 slink /bin/sh      /bin/bb 0777 0 0
 
-file /bin/cryptsetup /sbin/cruptsetup 0755 0 0
+file /bin/cryptsetup /sbin/cryptsetup 0755 0 0
 file /bin/lvm        /sbin/lvm.static 0755 0 0
 

@@ -37,7 +37,7 @@ echo 0 > /proc/sys/kernel/printk
 # Process command line options
 for i in $(cat /proc/cmdline); do
 	case "${i}" in
-		real_root\=*)
+		root\=*)
 			root=$(get_opt $i)
 		;;
 		init\=*)
