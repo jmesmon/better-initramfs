@@ -85,7 +85,13 @@ InitializeLUKS() {
 	run echo -e "#!/bin/sh\nexit 0" > /sbin/udevadm
 	run chmod 755 /sbin/udevadm
 
-	run cryptsetup luksOpen "${enc_root}" enc_root
+	if [ "x$enc_ct" = x ]; then
+		enc_ct=0
+	else
+		enc_ct=$((enc_ct + 1))
+	fi
+
+	run cryptsetup luksOpen "${enc_root}" enc_$enc_ct
 }
 
 InitializeLVM() {

@@ -34,7 +34,7 @@ emount /proc /sys
 # Disable kernel messages from popping onto the screen
 echo 0 > /proc/sys/kernel/printk
 
-# Process command line options
+# process command line options
 for i in $(cat /proc/cmdline); do
 	case "${i}" in
 		root\=*)
@@ -42,18 +42,6 @@ for i in $(cat /proc/cmdline); do
 		;;
 		init\=*)
 			init=$(get_opt $i)
-		;;
-		enc_root\=*)
-			enc_root=$(get_opt $i)
-		;;
-		luks)
-			luks=true
-		;;
-		lvm)
-			lvm=true
-		;;
-		softraid)
-			softraid=true
 		;;
 		rescueshell)
 			rescueshell=true
@@ -80,9 +68,25 @@ if [ -z $root ]; then eerror "\$root variable is empty. This is fatal."; fi
 InitializeBusybox
 use rootdelay
 emount /dev
-use softraid InitializeSoftwareRaid
-use lvm InitializeLVM
-use luks InitializeLUKS && use lvm InitializeLVM
+
+# process command line options
+for i in $(cat /proc/cmdline); do
+	case "${i}" in
+		enc_dev\=*)
+			enc_root=$(get_opt $i)
+		;;
+		luks)
+			luks=true
+			use luks initializeluks
+		;;
+
+		lvm)
+			lvm=true
+			use lvm initializelvm
+		;;
+	esac
+done
+
 use rescueshell
 
 use tuxonice TuxOnIceResume
@@ -100,5 +104,5 @@ if [[ -x "/newroot/${init:-/sbin/init}" ]] ; then
 	exec switch_root /newroot "${init-/sbin/init}"
 fi
 
-ewarn "Something goes wrong."
+ewarn "Something went wrong."
 rescueshell
