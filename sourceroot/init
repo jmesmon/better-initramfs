@@ -77,12 +77,12 @@ for i in $(cat /proc/cmdline); do
 		;;
 		luks)
 			luks=true
-			use luks initializeluks
+			use luks InitializeLUKS
 		;;
 
 		lvm)
 			lvm=true
-			use lvm initializelvm
+			use lvm InitializeLVM
 		;;
 	esac
 done
