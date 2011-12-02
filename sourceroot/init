@@ -102,7 +102,7 @@ done
 use rescueshell rescueshell
 
 use tuxonice TuxOnIceResume
-if test x$tuxonice = x ; then
+if ! use tuxonice; then
 use resume   SwsuspResume
 fi
 
