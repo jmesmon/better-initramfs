@@ -78,7 +78,7 @@ musthave root
 InitializeBusybox
 use rootdelay rootdelay
 emount /dev
-
+loadkeymap
 use softraid InitializeSoftwareRaid
 
 # process command line options

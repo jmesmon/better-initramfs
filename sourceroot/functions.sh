@@ -29,7 +29,7 @@ rescueshell() {
 run() { "$@" || ( eerror "$@ failed." ; rescueshell ) ;}
 
 get_opt() {
-	echo "$@" | cut -d "=" -f 2,3
+	echo "$@" | cut -d "=" -f 2-
 }
 
 resolve_device() {
@@ -79,6 +79,12 @@ dodir() {
 	for dir in "$@"; do
 		mkdir -p "$dir"
 	done
+}
+
+loadkeymap() {
+	if [ -f /keymap ]; then
+		loadkmap < /keymap
+	fi
 }
 
 InitializeLUKS() {
