@@ -1,5 +1,14 @@
 #! /bin/sh
 
+if [ $# -eq 1 ]; then
+	SRC_ROOT=$1
+elif [ $# -eq 0 ]; then
+	SRC_ROOT=${SRC_ROOT:-$(realpath $(dirname "$0"))}
+else
+	echo "usage: $0 [SRC_ROOT]" >> /dev/stderr
+	exit 1
+fi
+
 emit_base () {
 cat <<EOF
 dir /dev 0755 0 0
@@ -14,8 +23,6 @@ slink /sbin /bin 0777 0 0
 
 EOF
 }
-
-SRC_ROOT=${SRC_ROOT:-$(realpath $(dirname "$0"))}
 
 add_file () {
 	i_name=$1
@@ -49,3 +56,5 @@ add_link /bin/sh      /bin/bb
 add_file /bin/cryptsetup /sbin/cryptsetup   -x
 add_file /bin/lvm        /sbin/lvm.static   -x
 add_file /bin/dropbear   /usr/sbin/dropbear -x
+
+add_file /authorized_keys $SRC_ROOT/authorized_keys
