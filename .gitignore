@@ -3,9 +3,16 @@ initramfs.cpio
 *~
 sourceroot/bin/*
 !sourceroot/bin/resume-boot
+sourceroot/VERSION
+output/*
 !*.keep
 sourceroot/lib/*
 sourceroot/etc/*
 !sourceroot/etc/profile
 !sourceroot/etc/profile.d
+!sourceroot/etc/suspend.conf
 sourceroot/config
+bootstrap/binaries
+bootstrap/output
+bootstrap/build_dir
+bootstrap/distfiles

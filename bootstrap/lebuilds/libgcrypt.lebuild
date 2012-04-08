@@ -1,0 +1,21 @@
+#!/bin/sh
+name='libgcrypt'
+version='1.5.0'
+sources=( "ftp://ftp.gnupg.org/gcrypt/libgcrypt/$name-$version.tar.bz2" )
+homepage='http://www.gnupg.org/'
+license='LGPLv2.1'
+
+build_cmd="
+	cd /source/${name}-${version} && \
+	./configure --prefix=/usr \
+	--disable-padlock-support \
+	--enable-shared=no \
+	--enable-static=yes && \
+	make -j ${cores_num:-1} && \
+	make install && \
+	if ! [ -e /bin/fgrep ]; then ln -s /bin/busybox /bin/fgrep; fi
+"
+
+fetch_source
+install_source
+build_source

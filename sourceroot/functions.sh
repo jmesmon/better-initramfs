@@ -10,7 +10,7 @@ eerror() { echo -ne "\033[1;30m>\033[0;31m>\033[1;31m> ${@}\033[0m\n" >&2 ;}
 
 InitializeBusybox() {
 	einfo "Create all the symlinks to /bin/busybox."
-	run busybox --install -s
+	run /bin/busybox --install -s
 }
 
 rescueshell() {
@@ -150,6 +150,15 @@ SwsuspResume() {
 	fi
 }
 
+UswsuspResume() {
+	musthave resume
+	resolve_device resume
+	if [ -f '/sys/power/resume' ]; then
+		run resume --resume_device "${resume}"
+	else
+		ewarn "Apparently this kernel does not support suspend."
+	fi
+}
 
 TuxOnIceResume() {
 	musthave resume
@@ -162,11 +171,11 @@ TuxOnIceResume() {
 }
 
 setup_sshd() {
-	musthave ipv4 interface
+	musthave sshd_ipv4 sshd_interface
 
-	einfo "Setting ${ipv4} on ${interface} ..."
-	run ip addr add "${ipv4}" dev "${interface}"
-	run ip link set up dev "${interface}"
+	einfo "Setting ${sshd_ipv4} on ${sshd_interface} ..."
+	run ip addr add "${sshd_ipv4}" dev "${sshd_interface}"
+	run ip link set up dev "${sshd_interface}"
 	
 	# Prepare /dev/pts.
 	einfo "Mounting /dev/pts ..."
@@ -191,14 +200,8 @@ setup_sshd() {
 		rescueshell
 	fi
 
-	if [ -n "${sshd_port}" ]; then
-		# append : to the begin of port.
-		# Todo: make check for numeric value of port.
-		sshd_port=":${sshd_port}"
-	fi
-
 	einfo 'Starting dropbear sshd ...'
-	run dropbear -s -j -k -p "${ipv4%/*}${sshd_port}"
+	run dropbear -s -j -k -p "${sshd_ipv4%/*}:${sshd_port-22}"
 
 	if use sshd_wait; then
 		# sshd_wait exist, now we should sleep for X sec.
@@ -206,7 +209,7 @@ setup_sshd() {
 			einfo "Waiting ${sshd_wait}s (sshd_wait)"
 				run sleep "${sshd_wait}"
 		else
-			ewarn "\$sshd_wait variable must be numeric and greater than zero. Skipping rootdelay."
+			ewarn "\$sshd_wait variable must be numeric and greater than zero. Skipping sshd_wait."
 		fi
 	fi
 
@@ -227,7 +230,7 @@ cleanup() {
 		fi
 		einfo "Cleaning up, killing dropbear and bringing down the network ..."
 		run pkill -9 dropbear > /dev/null 2>&1
-		run ip addr del "${ipv4}" dev "${interface}" > /dev/null 2>&1
+		run ip addr del "${sshd_ipv4}" dev "${sshd_interface}" > /dev/null 2>&1
 	fi
 }
 
@@ -247,6 +250,25 @@ emount() {
 				if [ -n "${rootfstype}" ]; then local mountparams="${rootfsmountparams} -t ${rootfstype}"; fi
 				resolve_device root
 				run mount -o ${root_rw_ro:-ro} ${mountparams} "${root}" '/newroot'
+			;;
+
+			'/newroot/usr')
+				if ! [ -f '/newroot/etc/fstab' ]; then
+					eerror "Missing /newroot/etc/fstab!"
+					rescueshell
+				fi
+
+				if ! [ -d '/newroot/usr' ]; then
+					eerror "Missing /newroot/usr mount point!"
+					rescueshell
+				fi
+
+				while read device mountpoint fstype fsflags _; do
+					if [ "${mountpoint}" = '/usr' ]; then
+						einfo "Mounting /newroot/usr..."
+						run mount -o "${fsflags},${root_rw_ro:-ro}" -t "${fstype}" "${device}" '/newroot/usr'
+					fi
+				done < '/newroot/etc/fstab'
 			;;
 	
 			'/dev')

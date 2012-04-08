@@ -27,8 +27,8 @@ clear
 kernelver="$(uname -r)"
 ver="$(cat /VERSION)"
 
-einfo "better-initramfs v${ver}. Linux kernel ${kernelver}.\n"
-echo -e "\nWelcome to better-initramfs v${ver}. Linux kernel ${kernelver}.\n" > /etc/motd
+einfo "better-initramfs ${ver}. Linux kernel ${kernelver}.\n"
+echo -e "\nWelcome to better-initramfs ${ver}. Linux kernel ${kernelver}.\n" > /etc/motd
 
 emount /proc /sys
 
@@ -38,6 +38,9 @@ echo 0 > /proc/sys/kernel/printk
 # process command line options
 for i in $(cat /proc/cmdline); do
 	case "${i}" in
+		initramfsdebug)
+			set -x
+		;;
 		root\=*)
 			root=$(get_opt $i)
 		;;
@@ -46,6 +49,9 @@ for i in $(cat /proc/cmdline); do
 		;;
 		rescueshell)
 			rescueshell=true
+		;;
+		uswsusp)
+			uswsusp=true
 		;;
 		tuxonice)
 			tuxonice=true
@@ -72,6 +78,12 @@ for i in $(cat /proc/cmdline); do
 		;;
 		sshd_port\=*)
 			sshd_port=$(get_opt $i)
+		;;
+		sshd_interface\=*)
+			sshd_interface=$(get_opt $i)
+		;;
+		sshd_ipv4\=*)
+			sshd_ipv4=$(get_opt $i)
 		;;
 		rootdelay\=*)
 			rootdelay=$(get_opt $i)
@@ -110,13 +122,11 @@ for i in $(cat /proc/cmdline); do
 done
 
 use rescueshell rescueshell
-
+use uswsusp  UswsuspResume
 use tuxonice TuxOnIceResume
-if ! use tuxonice; then
-use resume   SwsuspResume
-fi
 
 emount /newroot
+emount /newroot/usr
 cleanup
 moveDev
 eumount /sys /proc
