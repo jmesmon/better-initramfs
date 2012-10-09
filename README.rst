@@ -19,7 +19,7 @@ Features
 - Rescue shell
 - Remote rescue shell, available over ssh.
 - UUID/LABEL support for root and enc_root
-- Support for resume from TuxOnIce and Userspace Software Suspend (uswsusp).
+- Support for resume from TuxOnIce, in-kernel suspend (swsusp) and Userspace Software Suspend (uswsusp).
 
 
 
@@ -66,7 +66,9 @@ sshd_port=X
 sshd_interface=<if>
   Set an interface to what ssh deamon should bind to. Example: eth0
 sshd_ipv4=<addr/cidr>
-  Configure <addr> with <cidr> netmask on sshd_interface. Usualy you want something like '1.2.3.4/24'. If you will not add /CIDR, the IP will be configured with /32 thus you will be not able to connect to it no matter what, as we don't specify any gateway.
+  Configure <addr> with <cidr> netmask on sshd_interface. Usualy you want something like '1.2.3.4/24'. If you will not add /CIDR, the IP will be configured with /32 thus you will be not able to connect to it unless you specify sshd_ipv4_gateway.
+sshd_ipv4_gateway=<addr>
+  Optional gateway config, if you want to connect via WAN.
 rw
   Mount rootfs in read-write. Default: read-only.
 mdev
@@ -78,7 +80,9 @@ init=X
 tuxonice
   try resuming with TuxOnIce. Depends on resume= variable which points to the device with image, usualy swap partition.
 uswsusp
-  try resuming with userspace software suspend. Depends on resume= variable which points to the device with the system snapshot, usualy swap partition.
+  try resuming with userspace software suspend. Depends on resume= variable which points to the device with the system snapshot, usually swap partition.
+swsusp
+  try resuming with swusps (in-kernel suspend). Depends on resume= variable which points to the device with system snapshot, usually swap partition.
 resume=<device/path>
   Specify device from which you want to resume (with tuxonice or uswsusp).
 lvm
@@ -86,7 +90,7 @@ lvm
 luks
   do ``cryptsetup luksOpen`` on enc_root variable.
 enc_root=<device>
-  for example ``/dev/sda2`` if sda2 is your encrypted rootfs. This variable is ignored if luks isn't enabled.
+  for example ``/dev/sda2`` if sda2 is your encrypted rootfs. This variable is ignored if luks isn't enabled. You can specify multiple devices with colon as spearator, like ``enc_root=/dev/sda2:/dev/sdb2:/dev/vda1``.
 root=<device>
   for example ``/dev/mapper/enc_root`` if you have LUKS-encrypted rootfs, ``/dev/mapper/vg-rootfs`` or similar if lvm or just ``/dev/sdXX`` if you haven't rootfs over lvm or encrypted.
 rootfstype=<filesystem type>
@@ -95,6 +99,13 @@ rootdelay=<integer>
   Set how many seconds initramfs should wait [for devices]. Useful for rootfs on USB device.
 rootflags=X
   pass X flag(s) to mount while mounting rootfs, you can use it to specify which btrfs subvolume you want to mount.
+luks_trim
+  Enable TRIM support on LUKS-encrypted device, (SSD)
+
+Remote rescue shell
+===================
+
+In order to use remote rescue shell you need to place your authorized_keys file into sourceroot/ dir before you run ``make image``. The in-initramfs sshd server support only keypair-based authorization.
 
 Examples
 ========
