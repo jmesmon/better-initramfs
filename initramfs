@@ -2,6 +2,9 @@
 
 dir /dev 0755 0 0
 nod /dev/console 0600 0 0 c 5 1
+nod /dev/tty1 0600 0 0 c 4 1
+nod /dev/zero 0600 0 0 c 1 5
+nod /dev/mem  0600 0 0 c 1 1
 
 dir /root 0700 0 0
 dir /bin  0755 0 0
@@ -20,4 +23,6 @@ slink /bin/sh      /bin/bb 0777 0 0
 
 file /bin/cryptsetup /sbin/cryptsetup 0755 0 0
 file /bin/lvm        /sbin/lvm.static 0755 0 0
+
+file /sbin/v86d /sbin/v86d 0755 0 0
 
