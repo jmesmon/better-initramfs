@@ -2,7 +2,10 @@ initramfs.cpio.gz
 initramfs.cpio
 *~
 sourceroot/bin/*
+!sourceroot/bin/resume-boot
 !*.keep
 sourceroot/lib/*
 sourceroot/etc/*
+!sourceroot/etc/profile
+!sourceroot/etc/profile.d
 sourceroot/config

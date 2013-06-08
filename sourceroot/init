@@ -28,6 +28,7 @@ kernelver="$(uname -r)"
 ver="$(cat /VERSION)"
 
 einfo "better-initramfs v${ver}. Linux kernel ${kernelver}.\n"
+echo -e "\nWelcome to better-initramfs v${ver}. Linux kernel ${kernelver}.\n" > /etc/motd
 
 emount /proc /sys
 
@@ -63,7 +64,15 @@ for i in $(cat /proc/cmdline); do
 		ro|rw)
 			root_rw_ro=$i
 		;;
-
+		sshd)
+			sshd=true
+		;;
+		sshd_wait\=*)
+			sshd_wait=$(get_opt $i)
+		;;
+		sshd_port\=*)
+			sshd_port=$(get_opt $i)
+		;;
 		rootdelay\=*)
 			rootdelay=$(get_opt $i)
 		;;
@@ -78,6 +87,7 @@ musthave root
 InitializeBusybox
 use rootdelay rootdelay
 emount /dev
+use sshd && setup_sshd
 loadkeymap
 use softraid InitializeSoftwareRaid
 
@@ -107,13 +117,10 @@ use resume   SwsuspResume
 fi
 
 emount /newroot
+cleanup
 moveDev
 eumount /sys /proc
-
-if [ -x "/newroot/${init:-/sbin/init}" ]; then
-	einfo "Switching root to /newroot and executing /sbin/init."
-	exec switch_root /newroot "${init-/sbin/init}"
-fi
+boot_newroot
 
 ewarn "Something went wrong."
 rescueshell
