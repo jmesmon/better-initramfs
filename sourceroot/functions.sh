@@ -94,7 +94,7 @@ InitializeLUKS() {
 	fi
 
 	musthave enc_root
-	
+
 	einfo "Opening encrypted partition and mapping to /dev/mapper/enc_root."
 
 	resolve_device enc_root
@@ -109,7 +109,7 @@ InitializeLUKS() {
 		enc_ct=$((enc_ct + 1))
 	fi
 
-	run cryptsetup luksOpen "${enc_root}" enc_$enc_ct
+	run cryptsetup open --type=luks --allow-discards "${enc_root}" enc_$enc_ct
 }
 
 InitializeLVM() {
